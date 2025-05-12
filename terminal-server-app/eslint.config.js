@@ -20,6 +20,13 @@ export default defineConfig([
                 Pear: 'readonly',
                 require: true,
                 module: true,
+                console: true,
+                global: 'readonly',
+                exports: true,
+                setTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearTimeout: 'readonly',
+                clearInterval: 'readonly',
             },
         },
         rules: {

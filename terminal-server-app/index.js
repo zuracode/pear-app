@@ -1,10 +1,34 @@
-/** @typedef {import('pear-interface')} */ /* global Pear */
-const { teardown, updates, versions } = Pear;
+/** @typedef {import('pear-interface')} */
+import { swarmInstance } from './core/singletons/swarm';
+import { coreInstance } from './core/singletons/core';
+import { beeInstance } from './core/singletons/bee';
+import b4a from 'b4a';
 
-console.log('Pear terminal application running');
-console.log(await versions());
+/**
+ * First step: configuring application
+ */
+console.log('pear terminal application running...');
 
-updates(() => Pear.reload());
+Pear.teardown(() => swarmInstance.destroy());
+
+/**
+ * Second step: get started with setting app storage and peer-to-peer connection
+ */
+await coreInstance.ready();
+
+console.log('hypercore key:', b4a.toString(coreInstance.key, 'hex'));
+
+swarmInstance.on('connection', async (conn) => {
+    coreInstance.replicate(conn);
+
+    await beeInstance.put('key', 'value');
+    console.log(await beeInstance.get('key'));
+    // conn.on('data', () => {
+    //     bee.put('key', 'value');
+    // });
+});
+
+swarmInstance.join(coreInstance.discoveryKey);
 
 // connection listener
 // data listener

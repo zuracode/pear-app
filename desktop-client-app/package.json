@@ -1,0 +1,29 @@
+{
+  "name": "desktop-client-app",
+  "main": "index.html",
+  "pear": {
+    "name": "desktop-client-app",
+    "type": "desktop",
+    "gui": {
+      "backgroundColor": "#1F2430",
+      "height": "540",
+      "width": "720"
+    }
+  },
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "pear run -d .",
+    "test": "brittle test/*.test.js"
+  },
+  "devDependencies": {
+    "brittle": "^3.0.0",
+    "pear-interface": "^1.0.0"
+  },
+  "dependencies": {
+    "bare-path": "^3.0.0",
+    "hyperbee": "^2.24.2",
+    "hypercore": "^11.7.0",
+    "hyperswarm": "^4.11.7"
+  }
+}
