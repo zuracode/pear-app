@@ -1,18 +1,32 @@
 {
-  "name": "terminal-server-app",
-  "main": "index.js",
-  "pear": {
     "name": "terminal-server-app",
-    "type": "terminal"
-  },
-  "type": "module",
-  "license": "Apache-2.0",
-  "scripts": {
-    "dev": "pear run -d .",
-    "test": "brittle test/*.test.js"
-  },
-  "devDependencies": {
-    "brittle": "^3.0.0",
-    "pear-interface": "^1.0.0"
-  }
+    "main": "index.js",
+    "pear": {
+        "name": "terminal-server-app",
+        "type": "terminal"
+    },
+    "type": "module",
+    "license": "Apache-2.0",
+    "scripts": {
+        "dev": "pear run -d .",
+        "test": "brittle test/*.test.js",
+        "lint": "eslint . --ext .js",
+        "lint:fix": "eslint . --ext .js --fix",
+        "format": "prettier --write \"**/*.{js,json}\""
+    },
+    "devDependencies": {
+        "brittle": "^3.0.0",
+        "eslint": "^9.26.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-prettier": "^5.4.0",
+        "pear-interface": "^1.0.0",
+        "prettier": "^3.5.3"
+    },
+    "dependencies": {
+        "bare-path": "^3.0.0",
+        "hyperbee": "^2.24.2",
+        "hypercore": "^11.6.3",
+        "hyperswarm": "^4.11.7"
+    }
 }
