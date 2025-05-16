@@ -1,7 +1,6 @@
-import Hypercore from 'hypercore';
-import { HYPERCORE_WRITE_PATH } from '../configs';
 import path from 'bare-path';
+import Hypercore from 'hypercore';
 
 export const coreInstance = new Hypercore(
-    path.join(Pear.config.storage, HYPERCORE_WRITE_PATH)
+    path.join(Pear.config.storage, 'write-storage')
 );

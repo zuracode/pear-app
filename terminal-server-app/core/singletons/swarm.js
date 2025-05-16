@@ -1,3 +1,5 @@
 import Hyperswarm from 'hyperswarm';
 
-export const swarmInstance = new Hyperswarm();
+export const coreSwarmInstance = new Hyperswarm();
+
+export const messagingSwarmInstance = new Hyperswarm();

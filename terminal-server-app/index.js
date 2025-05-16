@@ -1,46 +1,76 @@
 /** @typedef {import('pear-interface')} */
-import { swarmInstance } from './core/singletons/swarm';
-import { coreInstance } from './core/singletons/core';
-import { beeInstance } from './core/singletons/bee';
+
 import b4a from 'b4a';
+import ProtomuxRPC from 'protomux-rpc';
 
-/**
- * First step: configuring application
- */
-console.log('pear terminal application running...');
+import {
+    coreSwarmInstance,
+    messagingSwarmInstance,
+} from './core/singletons/swarm';
+import { coreInstance } from './core/singletons/core';
+import crypto from 'hypercore-crypto';
 
-Pear.teardown(() => swarmInstance.destroy());
+import { PutDataController } from './core/controllers/put-data-controller';
+import { isValidJson } from './core/utils/is-valid-json';
 
-/**
- * Second step: get started with setting app storage and peer-to-peer connection
- */
+import {
+    PUT_USER_INFO_OPERATION_NAME,
+    PUT_REPOS_OPERATION_NAME,
+} from './core/constants';
+
+Pear.teardown(() => coreSwarmInstance.destroy());
+
 await coreInstance.ready();
 
-console.log('hypercore key:', b4a.toString(coreInstance.key, 'hex'));
+// swarm for sending user name from client to server
+const clientServerPeerToPeerTopicBuffer = crypto.randomBytes(32);
 
-swarmInstance.on('connection', async (conn) => {
-    coreInstance.replicate(conn);
+messagingSwarmInstance.on('connection', async (conn) => {
+    // send swarm key to client
+    const rpc = new ProtomuxRPC(conn);
 
-    await beeInstance.put('key', 'value');
-    console.log(await beeInstance.get('key'));
-    // conn.on('data', () => {
-    //     bee.put('key', 'value');
-    // });
+    rpc.respond('core-key', () => coreInstance.key);
+
+    // set up userCore swarm
+    coreSwarmInstance.on('connection', async (coreConn) => {
+        coreInstance.replicate(coreConn);
+    });
+
+    coreSwarmInstance.join(coreInstance.discoveryKey);
+
+    conn.on('data', async (data) => {
+        const decodedData = b4a.toString(data, 'utf-8');
+
+        if (isValidJson(decodedData)) {
+            const jsonData = JSON.parse(decodedData);
+
+            const operationData = jsonData?.data;
+            const operationName = jsonData?.operation;
+
+            if (operationData?.length) {
+                const putDataControllerInstance = new PutDataController();
+
+                if (operationName === PUT_USER_INFO_OPERATION_NAME) {
+                    const userInfo =
+                        await putDataControllerInstance.uploadUserInfo(
+                            operationData
+                        );
+
+                    conn.write(JSON.stringify(userInfo));
+                } else if (operationName === PUT_REPOS_OPERATION_NAME) {
+                    await putDataControllerInstance.uploadRepos(operationData);
+                }
+            }
+        }
+    });
 });
 
-swarmInstance.join(coreInstance.discoveryKey);
+messagingSwarmInstance.join(clientServerPeerToPeerTopicBuffer, {
+    client: false,
+    server: true,
+});
 
-// connection listener
-// data listener
-// when data will be channeled need to call axios api
-
-/**
- * swarm, bee setup
- *
- * 1. create file(singleton) for swarm
- * 2. create file(singleton) for bee
- */
-
-/**
- * axios api call(controller, model)
- */
+console.log(
+    'topic hex:',
+    b4a.toString(clientServerPeerToPeerTopicBuffer, 'hex')
+);
