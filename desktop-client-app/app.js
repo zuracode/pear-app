@@ -4,6 +4,7 @@ import ProtomuxRPC from 'protomux-rpc';
 import b4a from 'b4a';
 import HyperBee from 'hyperbee';
 import Hypercore from 'hypercore';
+
 import {
     messagingSwarmInstance,
     coreSwarmInstance,
@@ -12,7 +13,7 @@ import path from 'path';
 
 const { updates } = Pear;
 
-Pear.teardown(() => swarm.destroy());
+Pear.teardown(() => coreSwarmInstance.destroy());
 updates(() => Pear.reload());
 
 messagingSwarmInstance.on('connection', async (conn) => {

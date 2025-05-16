@@ -1,34 +1,43 @@
 {
-  "name": "desktop-client-app",
-  "main": "index.html",
-  "pear": {
     "name": "desktop-client-app",
-    "type": "desktop",
-    "gui": {
-      "backgroundColor": "#1F2430",
-      "height": "540",
-      "width": "720"
+    "main": "index.html",
+    "pear": {
+        "name": "desktop-client-app",
+        "type": "desktop",
+        "gui": {
+            "backgroundColor": "#ffffff",
+            "height": "540",
+            "width": "720"
+        }
+    },
+    "type": "module",
+    "license": "Apache-2.0",
+    "scripts": {
+        "dev": "pear run -d .",
+        "lint": "eslint . --ext .js",
+        "lint:fix": "eslint . --ext .js --fix",
+        "format": "prettier --write \"**/*.{js,json}\""
+    },
+    "devDependencies": {
+        "brittle": "^3.0.0",
+        "eslint": "^9.26.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-prettier": "^5.4.0",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "pear-interface": "^1.0.0",
+        "prettier": "^3.5.3"
+    },
+    "dependencies": {
+        "b4a": "^1.6.7",
+        "bare-path": "^3.0.0",
+        "corestore": "^7.4.2",
+        "hyperbee": "^2.24.2",
+        "hypercore": "^11.7.0",
+        "hyperdht": "^6.20.5",
+        "hyperswarm": "^4.11.7",
+        "path": "^0.12.7",
+        "protomux-rpc": "^1.7.0"
     }
-  },
-  "type": "module",
-  "license": "Apache-2.0",
-  "scripts": {
-    "dev": "pear run -d .",
-    "test": "brittle test/*.test.js"
-  },
-  "devDependencies": {
-    "brittle": "^3.0.0",
-    "pear-interface": "^1.0.0"
-  },
-  "dependencies": {
-    "b4a": "^1.6.7",
-    "bare-path": "^3.0.0",
-    "corestore": "^7.4.2",
-    "hyperbee": "^2.24.2",
-    "hypercore": "^11.7.0",
-    "hyperdht": "^6.20.5",
-    "hyperswarm": "^4.11.7",
-    "path": "^0.12.7",
-    "protomux-rpc": "^1.7.0"
-  }
 }
