@@ -26,11 +26,9 @@
         "b4a": "^1.6.7",
         "bare-fetch": "^2.3.0",
         "bare-path": "^3.0.0",
-        "corestore": "^7.4.2",
         "hyperbee": "^2.24.2",
         "hypercore": "^11.6.3",
         "hypercore-crypto": "^3.6.0",
-        "hyperdht": "^6.20.5",
         "hyperswarm": "^4.11.7",
         "protomux-rpc": "^1.7.0"
     }

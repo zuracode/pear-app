@@ -31,11 +31,8 @@
     },
     "dependencies": {
         "b4a": "^1.6.7",
-        "bare-path": "^3.0.0",
-        "corestore": "^7.4.2",
         "hyperbee": "^2.24.2",
         "hypercore": "^11.7.0",
-        "hyperdht": "^6.20.5",
         "hyperswarm": "^4.11.7",
         "path": "^0.12.7",
         "protomux-rpc": "^1.7.0"
