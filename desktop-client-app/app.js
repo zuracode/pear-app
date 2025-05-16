@@ -11,6 +11,9 @@ import {
 } from './src/singletons/swarm';
 import path from 'path';
 
+import { html } from 'htm/react';
+import { createRoot } from 'react-dom/client';
+
 const { updates } = Pear;
 
 Pear.teardown(() => coreSwarmInstance.destroy());
@@ -58,3 +61,10 @@ messagingSwarmInstance.join(b4a.from(Pear.config.args[0], 'hex'), {
     client: true,
     server: false,
 });
+
+const root = createRoot(document.querySelector('#root'));
+root.render(
+    html`<div key="root" className="text-green-400">
+        <span>root app</span><span>asdas</span>
+    </div> `
+);

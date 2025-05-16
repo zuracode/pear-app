@@ -16,9 +16,11 @@
         "dev": "pear run -d .",
         "lint": "eslint . --ext .js",
         "lint:fix": "eslint . --ext .js --fix",
-        "format": "prettier --write \"**/*.{js,json}\""
+        "format": "prettier --write \"**/*.{js,json}\"",
+        "build:css": "npx @tailwindcss/cli -i ./style.css -o ./output.css --watch"
     },
     "devDependencies": {
+        "autoprefixer": "^10.4.21",
         "brittle": "^3.0.0",
         "eslint": "^9.26.0",
         "eslint-config-prettier": "^10.1.5",
@@ -30,11 +32,16 @@
         "prettier": "^3.5.3"
     },
     "dependencies": {
+        "@tailwindcss/cli": "^4.1.7",
         "b4a": "^1.6.7",
+        "htm": "^3.1.1",
         "hyperbee": "^2.24.2",
         "hypercore": "^11.7.0",
         "hyperswarm": "^4.11.7",
         "path": "^0.12.7",
-        "protomux-rpc": "^1.7.0"
+        "protomux-rpc": "^1.7.0",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "tailwindcss": "^4.1.7"
     }
 }

@@ -34,6 +34,7 @@ export default defineConfig([
                 setInterval: 'readonly',
                 clearTimeout: 'readonly',
                 clearInterval: 'readonly',
+                document: true,
             },
         },
         settings: {
@@ -61,7 +62,6 @@ export default defineConfig([
             'react/jsx-uses-react': 'off', // Not needed with React 17+
             'react/react-in-jsx-scope': 'off', // Not needed with React 17+
             'react/no-unescaped-entities': 'error', // Enforce proper escaping in JSX
-            'react/jsx-key': 'error', // Require keys in iterators
         },
     },
 ]);
