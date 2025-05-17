@@ -10,10 +10,15 @@
                 cursor: pointer;
             }
 
+            html,
+            body,
+            #root {
+                min-height: calc(100vh - var(--title-bar-height));
+            }
+
             body {
                 margin-top: var(--title-bar-height);
                 background-color: #fff;
-                padding-top: 10px;
             }
 
             #bar {
@@ -22,8 +27,6 @@
                 -webkit-app-region: drag;
                 height: var(--title-bar-height);
                 padding: 0;
-                border-top-left-radius: 8px;
-                border-top-right-radius: 8px;
                 color: #fff;
                 white-space: nowrap;
                 box-sizing: border-box;
@@ -38,13 +41,16 @@
                 margin-top: 12px;
                 margin-left: 10px;
             }
+
+            .min-screen-height {
+                min-height: calc(100vh - var(--title-bar-height));
+            }
         </style>
         <link rel="stylesheet" href="./output.css" />
-        <script type="module" src="./app.js"></script>
     </head>
     <body>
         <div id="bar"><pear-ctrl></pear-ctrl></div>
         <div id="root"></div>
-        <script type="module" src="./app.js"></script>
+        <script type="module" src="./index.js"></script>
     </body>
 </html>
