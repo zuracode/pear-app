@@ -5,9 +5,10 @@ const FormContext = createContext(undefined);
 
 export const FormProvider = ({ children }) => {
     const [searching, setSearching] = useState(false);
+    const [notFound, setNotFound] = useState(false);
 
     const [currentUser, setCurrentUser] = useState(null);
-    const [notFoundUser, setNotFoundUser] = useState(false);
+    const [currentRepositories, setCurrentRepositories] = useState([]);
 
     const [operationOption, setOperationOption] = useState('');
     const [githubUser, setGithubUser] = useState('');
@@ -19,8 +20,10 @@ export const FormProvider = ({ children }) => {
         setGithubUser,
         currentUser,
         setCurrentUser,
-        notFoundUser,
-        setNotFoundUser,
+        currentRepositories,
+        setCurrentRepositories,
+        notFound,
+        setNotFound,
         searching,
         setSearching,
     };

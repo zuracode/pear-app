@@ -25,7 +25,7 @@ export class GithubApiController {
     async getUserRepos(username) {
         try {
             const response = await fetch(
-                `${GITHUB_API_URL}/${GITHUB_API_USERS_PATH}/${username}/repos`
+                `${GITHUB_API_URL}/${GITHUB_API_USERS_PATH}/${username}/repos?per_page=10&page=1`
             );
 
             if (!response.ok) {

@@ -1,12 +1,15 @@
 import { html } from 'htm/react';
 
 import { cn } from '../lib/utils';
+import { repoKey } from '../lib/repo-key';
 import { useForm } from '../context/form';
 import { useLocalStore } from '../context/local-store';
 import { usePear } from '../context/pear';
 
-const PUT_USER_INFO_OPERATION_NAME = 'user_info_request';
-const PUT_REPOS_OPERATION_NAME = 'repos_request';
+import {
+    PUT_USER_INFO_OPERATION_NAME,
+    PUT_REPOS_OPERATION_NAME,
+} from '../constants';
 
 const selectOptions = [
     {
@@ -26,11 +29,12 @@ export const Form = () => {
         githubUser,
         setGithubUser,
         setCurrentUser,
-        setNotFoundUser,
+        setNotFound,
         setSearching,
+        setCurrentRepositories,
     } = useForm();
-
-    const { getUser, addUser } = useLocalStore();
+    const { getUser, addUser, getRepositories, addRepositories } =
+        useLocalStore();
     const { coreInstance, beeInstance, rpcInstance } = usePear();
 
     const isSelectFilled = operationOption !== '';
@@ -40,39 +44,44 @@ export const Form = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setSearching(true);
+        setNotFound(false);
+        setCurrentUser(null);
+        setCurrentRepositories(null);
+
         if (operationOption === PUT_USER_INFO_OPERATION_NAME) {
-            handleGithubUser(githubUser);
+            await handleGithubUser(githubUser);
+            setSearching(false);
+
             return;
         }
 
         if (operationOption === PUT_REPOS_OPERATION_NAME) {
-            handleGithubUserRepos();
+            await handleGithubUserRepos(githubUser);
+            setSearching(false);
+
             return;
         }
     };
 
-    const handleGithubUser = async (githubUser) => {
-        setSearching(true);
-        setCurrentUser(null);
-        setNotFoundUser(false);
-
+    const handleGithubUser = async (username) => {
         // get from local storage
-        const githubUserFromLocalStore = getUser(githubUser);
+        const githubUserFromLocalStore = getUser(username);
+        console.log({ githubUserFromLocalStore });
 
         if (githubUserFromLocalStore) {
             setCurrentUser(githubUserFromLocalStore);
-            setSearching(false);
 
             return;
         }
 
         // get from bee local data
-        const user = await beeInstance.current.get(githubUser);
+        const user = await beeInstance.current.get(username);
+        console.log({ user });
 
         if (user?.value) {
-            addUser(githubUser, user.value);
             setCurrentUser(user.value);
-            setSearching(false);
+            addUser(username, user.value);
 
             return;
         }
@@ -83,7 +92,7 @@ export const Form = () => {
             Buffer.from(
                 JSON.stringify({
                     operation: operationOption,
-                    data: githubUser,
+                    data: username,
                 }),
                 'utf-8'
             )
@@ -96,22 +105,79 @@ export const Form = () => {
                 ? JSON.parse(requestedData.toString('utf-8'))
                 : null;
 
+            console.log({ userStringToJson });
+
             if (!userStringToJson) {
-                setNotFoundUser(true);
-                setSearching(false);
+                setNotFound(true);
 
                 return;
             }
 
             setCurrentUser(userStringToJson);
-            setSearching(false);
-            addUser(githubUser, userStringToJson);
+            addUser(username, userStringToJson);
 
             return;
         }
     };
 
-    const handleGithubUserRepos = () => {};
+    const handleGithubUserRepos = async (username) => {
+        const key = repoKey(username);
+
+        // get from local storage
+        const reposFromLocalStore = getRepositories(key);
+        console.log({ reposFromLocalStore });
+
+        if (reposFromLocalStore) {
+            setCurrentRepositories(reposFromLocalStore);
+
+            return;
+        }
+
+        // get from bee local data
+        const repos = await beeInstance.current.get(key);
+
+        console.log({ repos });
+
+        if (repos?.value) {
+            setCurrentRepositories(repos.value);
+            addRepositories(key, repos.value);
+
+            return;
+        }
+
+        // get from server
+        const requestedData = await rpcInstance.current.request(
+            'requested-data',
+            Buffer.from(
+                JSON.stringify({
+                    operation: operationOption,
+                    data: username,
+                }),
+                'utf-8'
+            )
+        );
+
+        if (requestedData) {
+            await coreInstance.current.update();
+
+            const reposStringToJson = Buffer.isBuffer(requestedData)
+                ? JSON.parse(requestedData.toString('utf-8'))
+                : null;
+
+            console.log({ reposStringToJson });
+
+            if (!reposStringToJson) {
+                setNotFound(true);
+
+                return;
+            }
+
+            setCurrentRepositories(reposStringToJson);
+            addRepositories(key, reposStringToJson);
+
+            return;
+        }
+    };
 
     return html`
         <form onSubmit=${handleSubmit} className="space-y-4 w-full">

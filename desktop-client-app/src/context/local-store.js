@@ -1,6 +1,8 @@
 import { html } from 'htm/react';
 import { createContext, useContext, useState } from 'react';
 
+import { repoKey } from '../lib/repo-key';
+
 const LocalStoreContext = createContext();
 
 export const LocalStoreProvider = ({ children }) => {
@@ -16,7 +18,7 @@ export const LocalStoreProvider = ({ children }) => {
     };
 
     const addRepositories = (username, reposList) => {
-        const key = `${username}-repos`;
+        const key = repoKey(username);
         const prevRepositories = getRepositories(username);
 
         if (prevRepositories) {
@@ -28,7 +30,7 @@ export const LocalStoreProvider = ({ children }) => {
     };
 
     const getRepositories = (username) => {
-        const key = `${username}-repos`;
+        const key = repoKey(username);
         return repositories.get(key);
     };
 

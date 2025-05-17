@@ -19,7 +19,10 @@ Pear.teardown(() => coreSwarmInstance.destroy());
 await coreInstance.ready();
 
 // core key
-console.log('core key:', b4a.toString(coreInstance.key, 'hex'));
+console.log(
+    'core key. should be copied:',
+    b4a.toString(coreInstance.key, 'hex')
+);
 
 coreSwarmInstance.on('connection', async (conn) => {
     coreInstance.replicate(conn);

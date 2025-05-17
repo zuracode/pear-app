@@ -11,6 +11,10 @@ export class PutDataController {
         this.#githubApiController = new GithubApiController();
     }
 
+    #objectOrArrayCas(prev, next) {
+        return equal(prev, next);
+    }
+
     async uploadUserInfo(username) {
         try {
             const bee = new Hyperbee(coreInstance, {
@@ -23,13 +27,9 @@ export class PutDataController {
             if (!user) return null;
 
             await bee.put(username, user, {
-                cas: (prev, next) => {
-                    return equal(prev, next);
-                },
+                cas: this.#objectOrArrayCas,
             });
             const userFromBee = await bee.get(username);
-
-            console.log({ userFromBee });
 
             return userFromBee.value;
         } catch (e) {
@@ -39,17 +39,24 @@ export class PutDataController {
 
     async uploadRepos(username) {
         try {
+            const key = `${username}-repos`;
+
             const bee = new Hyperbee(coreInstance, {
                 keyEncoding: 'utf-8',
                 valueEncoding: 'json',
             });
 
-            const repos = await this.#githubApiController.getUserRepos();
+            const repos =
+                await this.#githubApiController.getUserRepos(username);
 
-            await bee.put(`${username}-repos`, repos);
-            const reposFromBee = await bee.get(username);
+            if (!repos) return null;
 
-            return reposFromBee;
+            await bee.put(key, repos, {
+                cas: this.#objectOrArrayCas,
+            });
+            const reposFromBee = await bee.get(key);
+
+            return reposFromBee.value;
         } catch (e) {
             console.log(e);
         }

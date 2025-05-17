@@ -64,7 +64,7 @@ export const PearProvider = ({ children }) => {
 
             setInitializationPhase(initializationMessages.pendingDHT);
 
-            // await coreSwarm.flush();
+            await coreSwarm.flush();
 
             setIsInitializing(true);
             setInitializationPhase('');

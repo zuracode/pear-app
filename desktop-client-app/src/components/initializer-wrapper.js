@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import { html } from 'htm/react';
 
 import { usePear } from '../context/pear';
