@@ -6,40 +6,43 @@ import Hyperswarm from 'hyperswarm';
 import HyperBee from 'hyperbee';
 import path from 'path';
 import ProtomuxRPC from 'protomux-rpc';
-import { createContext, useEffect, useRef, useState } from 'react';
-import b4a from 'b4a';
+import { createContext, useEffect, useRef, useState, useContext } from 'react';
 
-export const PearContext = createContext();
+const initializationMessages = {
+    pendingDHT: 'waits for any pending DHT announcements',
+    cloneData: 'data cloning phase',
+};
+
+export const PearContext = createContext(undefined);
 
 export const PearProvider = ({ children }) => {
-    const [mainPhaseLoaded, setMainPhaseLoaded] = useState(false);
+    const [isInitializing, setIsInitializing] = useState(false);
+    const [initializationPhase, setInitializationPhase] = useState(
+        initializationMessages.cloneData
+    );
 
     const coreSwarmInstance = useRef(new Hyperswarm());
-    const messagingSwarmInstance = useRef(new Hyperswarm());
     const coreInstance = useRef();
     const beeInstance = useRef();
+    const rpcInstance = useRef();
 
     const value = {
         coreSwarmInstance,
-        messagingSwarmInstance,
         coreInstance,
         beeInstance,
-        mainPhaseLoaded:
-            typeof mainPhaseLoaded === 'undefined' ? false : mainPhaseLoaded,
+        rpcInstance,
+        isInitializing:
+            typeof isInitializing === 'undefined' ? false : isInitializing,
+        initializationPhase,
     };
 
-    console.log(
-        typeof mainPhaseLoaded === 'undefined' ? false : mainPhaseLoaded
-    );
-
     useEffect(() => {
-        messagingSwarmInstance.current.on('connection', async (conn) => {
-            const rpc = new ProtomuxRPC(conn);
-            const coreKey = await rpc.request('core-key');
+        async function init() {
+            const coreSwarm = new Hyperswarm();
 
             coreInstance.current = new Hypercore(
                 path.join(Pear.config.storage, 'read-storage'),
-                coreKey
+                Pear.config.args[0]
             );
 
             beeInstance.current = new HyperBee(coreInstance.current, {
@@ -49,45 +52,30 @@ export const PearProvider = ({ children }) => {
 
             await coreInstance.current.ready();
 
-            setMainPhaseLoaded(true);
-
-            coreSwarmInstance.current.on('connection', (coreConn) =>
-                coreInstance.current.replicate(coreConn)
-            );
-            const discovery = coreSwarmInstance.current.join(
-                coreInstance.current.discoveryKey
-            );
-
-            await discovery.flushed();
-
-            const word = 'zuracode';
-
-            const data = await beeInstance.current.get(word);
-
-            console.log({ data });
-
-            // conn.on('data', (data) => console.log(b4a.toString(data, 'utf-8')));
-            // conn.write(
-            //     JSON.stringify({
-            //         operation: 'user_info_request',
-            //         data: 'zuracode',
-            //     })
-            // );
-        });
-
-        messagingSwarmInstance.current.join(
-            b4a.from(Pear.config.args[0], 'hex'),
-            {
+            coreSwarm.join(coreInstance.current.discoveryKey, {
                 client: true,
                 server: false,
-            }
-        );
+            });
+
+            coreSwarm.on('connection', (conn) => {
+                coreInstance.current.replicate(conn);
+                rpcInstance.current = new ProtomuxRPC(conn);
+            });
+
+            setInitializationPhase(initializationMessages.pendingDHT);
+
+            // await coreSwarm.flush();
+
+            setIsInitializing(true);
+            setInitializationPhase('');
+        }
+
+        init();
 
         return () => {
             const { teardown } = Pear;
 
             teardown(() => {
-                messagingSwarmInstance?.current?.destroy();
                 coreSwarmInstance?.current?.destroy();
             });
         };
@@ -98,4 +86,14 @@ export const PearProvider = ({ children }) => {
             ${children}
         </>
     `;
+};
+
+export const usePear = () => {
+    const context = useContext(PearContext);
+
+    if (context === undefined) {
+        throw new Error('useForm must be used within a FormProvider');
+    }
+
+    return context;
 };

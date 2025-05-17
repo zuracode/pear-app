@@ -3,12 +3,8 @@
 import b4a from 'b4a';
 import ProtomuxRPC from 'protomux-rpc';
 
-import {
-    coreSwarmInstance,
-    messagingSwarmInstance,
-} from './core/singletons/swarm';
+import { coreSwarmInstance } from './core/singletons/swarm';
 import { coreInstance } from './core/singletons/core';
-import crypto from 'hypercore-crypto';
 
 import { PutDataController } from './core/controllers/put-data-controller';
 import { isValidJson } from './core/utils/is-valid-json';
@@ -22,23 +18,15 @@ Pear.teardown(() => coreSwarmInstance.destroy());
 
 await coreInstance.ready();
 
-// swarm for sending user name from client to server
-const clientServerPeerToPeerTopicBuffer = crypto.randomBytes(32);
+// core key
+console.log('core key:', b4a.toString(coreInstance.key, 'hex'));
 
-messagingSwarmInstance.on('connection', async (conn) => {
-    // send swarm key to client
+coreSwarmInstance.on('connection', async (conn) => {
+    coreInstance.replicate(conn);
+
     const rpc = new ProtomuxRPC(conn);
 
-    rpc.respond('core-key', () => coreInstance.key);
-
-    // set up userCore swarm
-    coreSwarmInstance.on('connection', async (coreConn) => {
-        coreInstance.replicate(coreConn);
-    });
-
-    coreSwarmInstance.join(coreInstance.discoveryKey);
-
-    conn.on('data', async (data) => {
+    rpc.respond('requested-data', async (data) => {
         const decodedData = b4a.toString(data, 'utf-8');
 
         if (isValidJson(decodedData)) {
@@ -56,21 +44,23 @@ messagingSwarmInstance.on('connection', async (conn) => {
                             operationData
                         );
 
-                    conn.write(JSON.stringify(userInfo));
+                    return b4a.from(JSON.stringify(userInfo), 'utf-8');
                 } else if (operationName === PUT_REPOS_OPERATION_NAME) {
-                    await putDataControllerInstance.uploadRepos(operationData);
+                    const repos =
+                        await putDataControllerInstance.uploadRepos(
+                            operationData
+                        );
+
+                    return b4a.from(JSON.stringify(repos), 'utf-8');
                 }
             }
         }
+
+        return null;
     });
 });
 
-messagingSwarmInstance.join(clientServerPeerToPeerTopicBuffer, {
+coreSwarmInstance.join(coreInstance.discoveryKey, {
     client: false,
     server: true,
 });
-
-console.log(
-    'topic hex:',
-    b4a.toString(clientServerPeerToPeerTopicBuffer, 'hex')
-);
