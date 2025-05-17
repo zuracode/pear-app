@@ -27,6 +27,7 @@ export const Form = () => {
         setGithubUser,
         setCurrentUser,
         setNotFoundUser,
+        setSearching,
     } = useForm();
 
     const { getUser, addUser } = useLocalStore();
@@ -51,6 +52,7 @@ export const Form = () => {
     };
 
     const handleGithubUser = async (githubUser) => {
+        setSearching(true);
         setCurrentUser(null);
         setNotFoundUser(false);
 
@@ -59,6 +61,7 @@ export const Form = () => {
 
         if (githubUserFromLocalStore) {
             setCurrentUser(githubUserFromLocalStore);
+            setSearching(false);
 
             return;
         }
@@ -69,6 +72,7 @@ export const Form = () => {
         if (user?.value) {
             addUser(githubUser, user.value);
             setCurrentUser(user.value);
+            setSearching(false);
 
             return;
         }
@@ -94,11 +98,13 @@ export const Form = () => {
 
             if (!userStringToJson) {
                 setNotFoundUser(true);
+                setSearching(false);
 
                 return;
             }
 
             setCurrentUser(userStringToJson);
+            setSearching(false);
             addUser(githubUser, userStringToJson);
 
             return;

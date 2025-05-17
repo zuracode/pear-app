@@ -1,11 +1,19 @@
 import { html } from 'htm/react';
 import { MapPin, Github, LinkIcon, Users } from 'lucide-react';
+import { useForm } from '../context/form';
+import { LoadingSpinner } from './spinner';
 
-export const UserInfo = ({ user, notFoundUser }) => {
-    console.log({ user });
+export const UserInfo = () => {
+    const { currentUser: user, notFoundUser, searching } = useForm();
+
+    if (searching) {
+        return html`<div className="flex w-full justify-center mt-8">
+            <${LoadingSpinner} size="lg" />
+        </div>`;
+    }
 
     if (notFoundUser)
-        return html`<p className="text-center mt-5 text-red-700 font-bold">
+        return html`<p className="text-center mt-8 text-red-600 font-medium">
             User not found
         </p>`;
 

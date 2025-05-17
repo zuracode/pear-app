@@ -4,6 +4,8 @@ import { useState, createContext, useContext } from 'react';
 const FormContext = createContext(undefined);
 
 export const FormProvider = ({ children }) => {
+    const [searching, setSearching] = useState(false);
+
     const [currentUser, setCurrentUser] = useState(null);
     const [notFoundUser, setNotFoundUser] = useState(false);
 
@@ -19,6 +21,8 @@ export const FormProvider = ({ children }) => {
         setCurrentUser,
         notFoundUser,
         setNotFoundUser,
+        searching,
+        setSearching,
     };
 
     return html`<${FormContext.Provider} value=${value}>${children}<//>`;
