@@ -67,7 +67,6 @@ export const Form = () => {
     const handleGithubUser = async (username) => {
         // get from local storage
         const githubUserFromLocalStore = getUser(username);
-        console.log({ githubUserFromLocalStore });
 
         if (githubUserFromLocalStore) {
             setCurrentUser(githubUserFromLocalStore);
@@ -77,7 +76,6 @@ export const Form = () => {
 
         // get from bee local data
         const user = await beeInstance.current.get(username);
-        console.log({ user });
 
         if (user?.value) {
             setCurrentUser(user.value);
@@ -105,8 +103,6 @@ export const Form = () => {
                 ? JSON.parse(requestedData.toString('utf-8'))
                 : null;
 
-            console.log({ userStringToJson });
-
             if (!userStringToJson) {
                 setNotFound(true);
 
@@ -125,7 +121,6 @@ export const Form = () => {
 
         // get from local storage
         const reposFromLocalStore = getRepositories(key);
-        console.log({ reposFromLocalStore });
 
         if (reposFromLocalStore) {
             setCurrentRepositories(reposFromLocalStore);
@@ -135,8 +130,6 @@ export const Form = () => {
 
         // get from bee local data
         const repos = await beeInstance.current.get(key);
-
-        console.log({ repos });
 
         if (repos?.value) {
             setCurrentRepositories(repos.value);
@@ -163,8 +156,6 @@ export const Form = () => {
             const reposStringToJson = Buffer.isBuffer(requestedData)
                 ? JSON.parse(requestedData.toString('utf-8'))
                 : null;
-
-            console.log({ reposStringToJson });
 
             if (!reposStringToJson) {
                 setNotFound(true);
